@@ -66,7 +66,7 @@ data.forEach((element, index) => {
     var player = new jsmpeg(new WebSocket(`ws://localhost:${element["port"]}`), {
         canvas: document.getElementById(`chanel${index}`),
         autoplay: true,
-        // loop: true,
+        loop: true,
     })
     // player.onopen = (event) => {
     //     console.log("Connected to server!");

@@ -73,6 +73,12 @@ data.forEach((element, index) => {
     name: 'name',
     streamUrl: 'rtsp://' + element["username"] + ':' + element["password"] + '@' + element["ip_address"] +`:554/cam/realmonitor?channel=${element["channel"]}&subtype=1`,
     wsPort: `${element["port"]}`,
+    
+});
+stream.on('message', (message) => {
+  console.log(`Received: ${message}`);
+  // Send a response back to the client
+  stream.send(`hai`);
 });
 })
 

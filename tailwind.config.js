@@ -29,7 +29,7 @@ export default {
                     '950': '#442304',
                 },
                 "black": "#28282B",
-                "main": "#233c8c",
+                "main": "#00aeef",
                 "main-100": "#dce9fd",
                 "main-200": "#c1dafc",
                 "main-300": "#97c3f9",
