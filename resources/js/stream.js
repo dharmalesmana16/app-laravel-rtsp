@@ -1,3 +1,4 @@
+import axios from 'axios';
 import rtspStream from 'node-rtsp-stream'
 //@desc     Camera Authentication
 var ip_address = "116.66.205.182" //NOTE: replace it with your camera IP address
@@ -68,11 +69,17 @@ let data = [
 ]
 var username = "admin_it";
 var password="qwerty96";
-data.forEach((element, index) => {
+// let req = axios.get("/api/camera");
+// console.log("test")
+axios.get('http://localhost:8000/api/camera')
+  .then(response => {
+    // console.log(response.data.data)
+   response.data.data.forEach((element, index) => {
   let stream = new rtspStream({
     name: 'name',
-    streamUrl: 'rtsp://' + element["username"] + ':' + element["password"] + '@' + element["ip_address"] +`:554/cam/realmonitor?channel=${element["channel"]}&subtype=1`,
-    wsPort: `${element["port"]}`,
+    streamUrl: element["url"] + `/cam/realmonitor?channel=${element["channel"]}&subtype=1`,
+    wsPort: element["http_port"],
+    
     
 });
 stream.on('message', (message) => {
@@ -81,6 +88,11 @@ stream.on('message', (message) => {
   stream.send(`hai`);
 });
 })
+  })
+  .catch(error => {
+    console.error(error);
+  });
+
 
    
 // streamThird = new rtspStream({

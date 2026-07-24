@@ -20,13 +20,13 @@ var customIcon = L.icon({
     // popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
-let map = L.map('map').setView([-8.744762, 115.195800], 15);
+let map = L.map('map').setView([-8.662882,115.217619], 14);
 map.scrollWheelZoom.disable();
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 23,
-
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+    maxZoom: 21,
+    attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
 }).addTo(map);
+
 //  async function getDataDaya(){
 //     const response =  await fetch('/api/monitorings')
 //     const data = await response.json();
@@ -62,8 +62,8 @@ let data = [
     {"vendor":"PLN Satu",
     "lokasi":"KM1100 Tol Akses Benoa",
     "status":"active",
-    "lat":"-8.7283606",
-    "long":"115.2113882"
+    "lat":"-8.662882",
+    "long":"115.217619"
 },
     {"vendor":"PLN Dua",
     "lokasi":"KM1100 Tol Akses Benoa",

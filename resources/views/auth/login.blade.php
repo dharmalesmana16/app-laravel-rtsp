@@ -19,7 +19,7 @@
             {{-- <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"> --}}
             <div class="">
 
-                <img class="w-42 h-24 text-center mx-auto" src="/images/logo-bdr.png" alt="logo">
+                <img class="w-42 h-24 text-center mx-auto" src="/images/Logo_PLN.png" alt="logo">
 
             </div>
 
@@ -32,7 +32,7 @@
                 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
                     <h1
                         class="text-lg font-bold  text-center leading-tight tracking-tight text-gray-900 md:text-lg dark:text-gray-900">
-                        Aplikasi Inventaris Barang
+                        Sistem Monitoring Pekerjaan Vendor
                     </h1>
                     <form x-data="{ username: '', password: '' }" class="space-y-4 md:space-y-6 formAuth" action="/signin"
                         method="post" @submit.prevent="submitForm">

@@ -8,8 +8,8 @@
     
     }">
 
-        <button class="block px-4 py-2 text-sm text-white font-bold bg-main-600 rounded-xl  hover:bg-main-800 "
-            role="menuitem" x-on:click="handleView"> Detail </button>
+        <button class="block px-4 py-2 text-sm text-white font-bold bg-main rounded-xl  hover:bg-main-800 "
+            role="menuitem" x-on:click="handleView"> Lihat </button>
         <div x-show="openModal" x-cloak
             class="fixed inset-1 z-40 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
             <div class="relative p-4 w-full max-w-2xl max-h-full">
@@ -57,11 +57,13 @@
 
     function handleClose() {
         this.openModal = !this.openModal
-        var player = new jsmpeg(new WebSocket(`ws://localhost:${this.$refs.modalport.id}`), {
+        let wsCCTV = new WebSocket(`ws://localhost:${this.$refs.modalport.id}`)
+        var player = new jsmpeg(wsCCTV, {
             canvas: document.getElementById(`${this.$refs.modalstreaming.id}`),
             autoplay: true,
             loop: true,
         })
+        wsCCTV.close();
         player.destroy()
     }
 </script>

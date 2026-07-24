@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="/images/logo-jbt.png" type="image/x-icon" />
     <title> PLN Bali</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
@@ -17,37 +19,16 @@
     {{-- <script src="/js/jquery.min.js"></script> --}}
     {{-- <script src="https://code.jquery.com/jquery-3.6.1.min.js"
         integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script> --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/home.js'])
 </head>
 
-<body>
+<body class="bg-gray-100">
 
-    <nav class="bg-white border-gray-200 ">
-        <div class="flex flex-wrap justify-between items-center mx-auto container p-4">
-            <x-application-logo>
-            </x-application-logo>
-            <div class="flex flex-row items-center rtl:space-x-reverse gap-2">
-                <div class="">
 
-                    <p class="text-sm items-center gap-1  text-gray-500 dark:text-white">
-                        Sistem Monitoring Pekerjaan Vendor
-                    </p>
-                </div>
-                <div class="">
-
-                    <form action="signout" method="get">
-                        <button
-                            class="block px-4 py-2 text-sm text-white font-bold bg-red-600 rounded-xl  hover:bg-red-800 "
-                            role="menuitem">
-                            Sign out
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </nav>
     <nav class="bg-main">
         <div class="container px-4 py-3 mx-auto">
+            <x-application-logo>
+            </x-application-logo>
             <button data-collapse-toggle="navbar-default" type="button"
                 class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 aria-controls="navbar-default" aria-expanded="false">
@@ -58,12 +39,14 @@
                         d="M1 1h15M1 7h15M1 13h15" />
                 </svg>
             </button>
-            <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+
+            <div class=" w-full  md:w-auto flex justify-between " id="navbar-default">
 
                 <ul
-                    class="font-medium flex flex-col  mt-0 p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-main md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 ">
+                    class="font-medium flex flex-col   mt-0 p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-main md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 ">
+
                     <li>
-                        <a href="/" class="flex items-center p-2 text-white rounded-lg hover:bg-second-500 group">
+                        <a href="/" class="flex  p-2 text-white rounded-lg hover:bg-second-500 group">
                             <svg class="shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-white"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                                 viewBox="0 0 22 21">
@@ -79,7 +62,7 @@
                     </li>
                     {{-- <li>
                         <a href="/stok"
-                            class="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 group">
+                            class="flex  p-2 text-white rounded-lg hover:bg-gray-100 group">
                             <svg class="shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-gray-900"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                                 viewBox="0 0 18 18">
@@ -104,24 +87,60 @@
                             </span>
                         </a>
                     </li>
-
+                    <li>
+                        <a href="/vendor" class="flex items-center p-2 text-white rounded-lg hover:bg-second-500 group">
+                            <svg class="shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-white"
+                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                viewBox="0 0 20 20">
+                                <path
+                                    d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">
+                                Data Vendor
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/camera" class="flex items-center p-2 text-white rounded-lg hover:bg-second-500 group">
+                            <svg class="shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-white"
+                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                viewBox="0 0 20 20">
+                                <path
+                                    d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">
+                                Data CCTV
+                            </span>
+                        </a>
+                    </li>
 
 
                 </ul>
+                <div class="">
+                    <form action="signout" method="get">
+                        <button
+                            class="block px-4 py-2 text-sm text-white font-bold bg-red-600 rounded-xl  hover:bg-red-800 "
+                            role="menuitem">
+                            Sign out
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- ========== header end ========== -->
 
-    <div class="">
+    <div class=" mx-auto ">
         @yield('content')
     </div>
     <!-- ========== footer start =========== -->
 
     </main>
+
     <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- <script src="https://jsdelivr.net"></script> --}}
 
     {{-- <script src="https://code.jquery.com/jquery-3.6.1.min.js"
         integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script> --}}

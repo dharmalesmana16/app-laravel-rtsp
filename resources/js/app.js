@@ -1,8 +1,12 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
-
+import fetchWilayah from './api';
+import  $  from "jquery";
+import Swal from 'sweetalert2';
+window.Swal = Swal
+window.$ = $
 window.Alpine = Alpine;
-
+window.fetchWilayah = fetchWilayah
 let data = [{
     "username": "admin",
     "password": "x0121oke",
@@ -61,16 +65,35 @@ let data = [{
 },
 
 ]
-data.forEach((element, index) => {
+axios.get('http://localhost:8000/api/camera')
+  .then(response => {
+    // console.log(response.data.data)
+    response.data.data.forEach((element, index) => {
     
-    var player = new jsmpeg(new WebSocket(`ws://localhost:${element["port"]}`), {
-        canvas: document.getElementById(`chanel${index}`),
-        autoplay: true,
-        loop: true,
+        var player = new jsmpeg(new WebSocket(`ws://localhost:${element["http_port"]}`), {
+            canvas: document.getElementById(`chanel${index}`),
+            autoplay: true,
+            loop: true,
+        })
+        // player.onopen = (event) => {
+        //     console.log("Connected to server!");
+        //   };
     })
-    // player.onopen = (event) => {
-    //     console.log("Connected to server!");
-    //   };
 })
 
+  .catch(error => {
+    console.error(error);
+  });
+
+
+// async function displayData() {
+//     try {
+//       // Await the exported fetch function
+//       const user = await fetchWilayah();
+//       console.log("User Data Received:", user);
+//     } catch (error) {
+//       console.log("Could not display data due to an error.");
+//     }
+//   }
+//   displayData()
 Alpine.start();

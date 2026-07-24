@@ -2,10 +2,10 @@
 @section('content')
     <div class="mt-4 mx-auto block p-4">
 
-        <div class="bg-white shadow-md p-5 mb-3 rounded-3xl">
-            <h1>Vendor 1</h1>
+        <div class="bg-second-500 shadow-md p-5 mb-3 rounded-3xl">
+            <h1 class="font-bold ">Vendor 1</h1>
         </div>
-        <div class="grid grid-cols-4 gap-4 mx-auto block ">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mx-auto block ">
 
             @foreach ($res as $req => $index)
                 <div x-data="{
@@ -13,7 +13,7 @@
                     mainStreaming: false,
                 }">
                     <div
-                        class="max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                        class="max-w-xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                         <div>
                             <canvas id={{ 'chanel' . $req }} width="50" height="50" x-ref="mainStreaming"
                                 class="mainStreaming p-2 h-[250px]" style="width:100%"></canvas>
@@ -26,7 +26,7 @@
                             <p class="font-normal text-gray-700 dark:text-gray-400">Status:
                                 Aktif</p>
                             <x-modal-view-streaming id_canvas="{{ $req }}"
-                                modalport="{{ $index['port'] }}"></x-modal-view-streaming>
+                                modalport="{{ $index['http_port'] }}"></x-modal-view-streaming>
 
 
 
