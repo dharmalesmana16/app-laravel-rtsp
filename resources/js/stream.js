@@ -71,7 +71,7 @@ var username = "admin_it";
 var password="qwerty96";
 // let req = axios.get("/api/camera");
 // console.log("test")
-axios.get('http://localhost:8000/api/camera')
+axios.get('http://localhost/api/camera')
   .then(response => {
     // console.log(response.data.data)
    response.data.data.forEach((element, index) => {
