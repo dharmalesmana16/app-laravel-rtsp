@@ -92,7 +92,8 @@
                             </svg>
                             <span class="hidden xl:inline">Profile</span>
                         </a>
-                        <form action="/signout" method="get" class="m-0">
+                        <form action="{{ route('logout') }}" method="POST" class="m-0">
+                            @csrf
                             <button type="submit"
                                 class="flex items-center px-2.5 py-2 text-xs xl:text-sm font-medium text-white bg-red-500/80 rounded-lg transition-colors duration-150 hover:bg-red-600">
                                 <svg class="w-4 h-4 mr-1 xl:w-5 xl:h-5 xl:mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,7 +179,8 @@
                     </svg>
                     Profile
                 </a>
-                <form action="/signout" method="get">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
                     <button type="submit"
                         class="flex items-center w-full px-3 py-2 text-sm font-medium text-white bg-red-500/80 rounded-lg hover:bg-red-600">
                         <svg class="w-5 h-5 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

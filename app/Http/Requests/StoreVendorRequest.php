@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreVendorRequest extends FormRequest
 {
@@ -13,8 +14,15 @@ class StoreVendorRequest extends FormRequest
 
     public function rules(): array
     {
+        $vendorId = $this->route('vendor');
+
         return [
-            "nama_perusahaan" => ["required", "string", "max:255"],
+            "nama_perusahaan" => [
+                "required",
+                "string",
+                "max:255",
+                Rule::unique('tb_data_vendor', 'nama_perusahaan')->ignore($vendorId),
+            ],
             "alamat" => ["nullable", "string"],
             "pic" => ["nullable", "string", "max:100"],
             "cp" => ["nullable", "string", "max:50"],

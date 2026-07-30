@@ -37,7 +37,11 @@ class DataCameraController extends Controller
     protected function allocateWsPort(): int
     {
         $base = (int) config("camera.ws_port_base", 8010);
-        $used = DataCamera::pluck("http_port")->toArray();
+
+        $used = DataCamera::withTrashed()
+            ->whereNotNull("http_port")
+            ->pluck("http_port")
+            ->toArray();
 
         $port = $base;
         while (in_array($port, $used, true)) {
