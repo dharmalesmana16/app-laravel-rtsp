@@ -22,13 +22,19 @@ class DashboardController extends Controller
 
         $vendors = DataVendor::withCount('cameras')->latest()->take(5)->get();
 
+        $cameraLocations = DataCamera::with('vendor')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get(['id', 'ip', 'brand', 'vendor_id', 'latitude', 'longitude', 'last_on']);
+
         return view('dashboard', compact(
             'totalVendors',
             'totalCameras',
             'camerasOnline',
             'camerasOffline',
             'latestCameras',
-            'vendors'
+            'vendors',
+            'cameraLocations'
         ));
     }
 }

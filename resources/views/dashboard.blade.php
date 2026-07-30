@@ -1,4 +1,11 @@
 <x-app-layout>
+    @push('scripts')
+        @vite(['resources/js/home.js'])
+        <script>
+            window.cameraLocations = @json($cameraLocations);
+        </script>
+    @endpush
+
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">Dashboard</h2>
     </x-slot>
@@ -169,6 +176,14 @@
                         </div>
                     </div>
                 </a>
+            </div>
+
+            <div class="mt-8 overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900">Peta Monitoring CCTV</h3>
+                    <p class="text-sm text-gray-500">Lokasi pemasangan kamera CCTV</p>
+                </div>
+                <div id="map" class="w-full" style="height: 70vh;"></div>
             </div>
         </div>
     </div>
