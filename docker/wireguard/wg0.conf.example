@@ -1,0 +1,21 @@
+# WireGuard CLIENT di VPS — menghubungkan ke server WG di jaringan kamera.
+# Tujuan: stream container (Docker bridge) bisa reach kamera di private network
+# melalui route host (host -> wg0 -> server kamera -> subnet kamera).
+#
+# Generate keypair di VPS:
+#   wg genkey | tee /etc/wireguard/privatekey | wg pubkey > /etc/wireguard/publickey
+#
+# Letakkan file ini di: /etc/wireguard/wg0.conf   lalu: sudo ./docker/wireguard/install-wireguard.sh
+
+[Interface]
+PrivateKey = <PRIVATE_KEY_VPS>
+Address    = 10.200.0.2/24
+
+[Peer]
+# Server WireGuard yg berada di jaringan kamera (mis. di router/raspberry pi).
+PublicKey           = <PUBLIC_KEY_SERVER_KAMERA>
+Endpoint            = <IP_PUBLIK_ATAU_DOMAIN_SERVER_KAMERA>:51820
+# Penting: masukkan subnet WG + subnet tempat IP kamera berada,
+# agar paket ke kamera masuk ke tunnel.
+AllowedIPs          = 10.200.0.0/24, 192.168.1.0/24
+PersistentKeepalive = 25

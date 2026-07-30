@@ -2,113 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreVendorRequest;
+use App\Http\Resources\VendorResource;
 use App\Models\DataVendor;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class DataVendorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    protected $data;
-    public function __construct()
+    public function index(): AnonymousResourceCollection
     {
-        $this->data = new DataVendor();
-    }
-    public function index()
-    {
-        try {
-            $data = $this->data::all();
-            return response()->json([
-                "msg" => "success",
-                "data" => $data
-            ]);
-        } catch (\Exception $th) {
-            return response()->json([
-                "msg" => $th->getMessage()
-            ]);
-        }
+        return VendorResource::collection(
+            DataVendor::withCount("cameras")->latest()->paginate(50)
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreVendorRequest $request): JsonResponse
     {
-        //
+        $vendor = DataVendor::create($request->validated());
+
+        return (new VendorResource($vendor))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(DataVendor $vendor): VendorResource
     {
-        try {
-            //code...
-
-            $nama_perusahaan = $request->nama_perusahaan;
-            $alamat = $request->alamat;
-            $pic = $request->pic;
-            $cp = $request->cp;
-            $provinsi = $request->provinsi;
-            $kota = $request->kota;
-            $kecamatan = $request->kecamatan;
-            $kode_pos = $request->kode_pos;
-            $email_perusahaan = $request->email_perusahaan;
-
-            $data = [
-                "nama_perusahaan" => $nama_perusahaan,
-                "alamat" => $alamat,
-                "pic" => $pic,
-                "cp" => $cp,
-                "provinsi" => $provinsi,
-                "kota" => $kota,
-                "kecamatan" => $kecamatan,
-                "kode_pos" => $kode_pos,
-                "email_perusahaan" => $email_perusahaan,
-            ];
-            $req = $this->data::create($data);
-            if ($req) {
-                return response()->json([
-                    "msg" => "success",
-                ]);
-            }
-        } catch (\Exception $th) {
-            return response()->json([
-                "msg" => $th->getMessage()
-            ]);
-        }
+        return new VendorResource($vendor);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(StoreVendorRequest $request, DataVendor $vendor): VendorResource
     {
-        //
+        $vendor->update($request->validated());
+
+        return new VendorResource($vendor);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(DataVendor $vendor): Response
     {
-        //
-    }
+        $vendor->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->noContent();
     }
 }

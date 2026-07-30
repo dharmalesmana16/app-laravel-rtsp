@@ -1,0 +1,114 @@
+@extends('template.index')
+@section('content')
+    <div class="px-4 py-6 mx-auto max-w-3xl sm:px-6 lg:px-8">
+        <div class="mb-6">
+            <a href="/kartu" class="inline-flex items-center text-sm text-gray-500 hover:text-main transition-colors">
+                <svg class="w-4 h-4 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Kembali
+            </a>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">Edit Kartu SIM</h2>
+            <form x-data="{
+                id: {{ request()->route('kartu') }},
+                nomor: '',
+                ip: '',
+                subnet: '',
+                gateway: '',
+                dns: '',
+                kuota: '',
+                sisa_kuota: '',
+                latitude: '',
+                longitude: '',
+                init() {
+                    axios.get(`/api/kartu/${this.id}`).then(res => {
+                        const d = res.data.data
+                        this.nomor = d.nomor
+                        this.ip = d.ip || ''
+                        this.subnet = d.subnet || ''
+                        this.gateway = d.gateway || ''
+                        this.dns = d.dns || ''
+                        this.kuota = d.kuota || ''
+                        this.sisa_kuota = d.sisa_kuota || ''
+                        this.latitude = d.latitude || ''
+                        this.longitude = d.longitude || ''
+                    })
+                }
+            }">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <x-input-label for="nomor" value="Nomor SIM Card" />
+                        <x-text-input id="nomor" class="w-full" x-model="nomor" />
+                    </div>
+                    <div>
+                        <x-input-label for="ip" value="IP Address" />
+                        <x-text-input x-model="ip" id="ip" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="subnet" value="Subnet" />
+                        <x-text-input x-model="subnet" id="subnet" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="gateway" value="Gateway" />
+                        <x-text-input x-model="gateway" id="gateway" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="dns" value="DNS" />
+                        <x-text-input x-model="dns" id="dns" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="kuota" value="Kuota (GB)" />
+                        <x-text-input type="number" step="0.1" min="0" x-model="kuota" id="kuota" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="sisa_kuota" value="Sisa Kuota (GB)" />
+                        <x-text-input type="number" step="0.1" min="0" x-model="sisa_kuota" id="sisa_kuota" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="latitude" value="Latitude" />
+                        <x-text-input x-model="latitude" id="latitude" class="w-full" />
+                    </div>
+                    <div>
+                        <x-input-label for="longitude" value="Longitude" />
+                        <x-text-input x-model="longitude" id="longitude" class="w-full" />
+                    </div>
+                </div>
+                <div class="flex justify-end mt-8 space-x-3">
+                    <a href="/kartu"
+                        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                        Batal
+                    </a>
+                    <button type="submit" x-on:click.prevent="onUpdate"
+                        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-main rounded-xl transition-all duration-200 hover:bg-main-600 hover:shadow-md focus:ring-2 focus:ring-main-300 focus:outline-none">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function onUpdate(e) {
+            e.preventDefault()
+            const metaTag = document.head.querySelector('meta[name="csrf-token"]');
+            const postData = {
+                nomor: this.nomor,
+                ip: this.ip || null,
+                subnet: this.subnet || null,
+                gateway: this.gateway || null,
+                dns: this.dns || null,
+                kuota: this.kuota || null,
+                sisa_kuota: this.sisa_kuota || null,
+                latitude: this.latitude || null,
+                longitude: this.longitude || null,
+            };
+            axios.put(`/api/kartu/${this.id}`, postData, {
+                headers: { 'X-CSRF-Token': metaTag.getAttribute('content') }
+            }).then(function(response) {
+                Swal.fire({ title: "Berhasil !", icon: "success", timer: 1500 });
+                setTimeout(() => window.location.href = "/kartu", 1000);
+            });
+        }
+    </script>
+@endsection

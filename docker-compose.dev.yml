@@ -1,0 +1,14 @@
+# Dev override — AKTIF HANYA jika di-include eksplisit (TIDAK auto-load di server):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+#   atau: ./dev.sh
+#
+# Tujuan: bind-mount source code -> ubah PHP/Blade langsung refleksi tanpa rebuild.
+services:
+  app:
+    volumes:
+      - ./:/var/www/html               # source live (app/, routes/, resources/views, dll)
+      - /var/www/html/vendor           # anonymous volume: preserve vendor dari image
+      - storage:/var/www/html/storage  # named volume: storage writable
+    environment:
+      APP_ENV: local                   # entrypoint skip config/route/view cache
+      APP_DEBUG: "true"

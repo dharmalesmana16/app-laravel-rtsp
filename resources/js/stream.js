@@ -1,127 +1,280 @@
-import axios from 'axios';
-import rtspStream from 'node-rtsp-stream'
-//@desc     Camera Authentication
-var ip_address = "116.66.205.182" //NOTE: replace it with your camera IP address
+import { availableParallelism, cpus } from "node:os";
+import { spawn } from "node:child_process";
+import axios from "axios";
+import RtspStream from "node-rtsp-stream";
+import { createLogger } from "./lib/logger.js";
+import { createPool } from "./lib/pool.js";
 
-//@desc     Camera username and password
+const API_URL = process.env.API_URL || "http://localhost:8000";
+const SERVICE_TOKEN = process.env.STREAM_SERVICE_TOKEN;
+const RESYNC_INTERVAL_MS = Number(process.env.RESYNC_INTERVAL_MS || 60000);
+const BACKOFF_MAX_MS = 30000;
+const MAX_RECONNECT_ATTEMPTS = Number(process.env.MAX_RECONNECT_ATTEMPTS || 10);
+const COOLDOWN_MS = Number(process.env.STREAM_COOLDOWN_MS || 300000);
 
+const cpuCount = (() => {
+  try {
+    return (typeof availableParallelism === "function" ? availableParallelism() : null) ?? cpus().length ?? 4;
+  } catch (_) {
+    return 4;
+  }
+})();
+const MAX_CONCURRENT = Number(process.env.MAX_CONCURRENT_STREAMS || Math.max(4, cpuCount * 2));
 
-//@desc   
+const logger = createLogger({ service: "rtsp-stream" });
 
-// app.get("/stream")
-let data = [
-  {
-    "username":"admin_it",
-    "password":"qwerty96",
-    "ip_address":"116.66.205.182",
-    "channel":"10",
-    "port":8010,
-  },
-  {
-    "username":"admin_it",
-    "password":"qwerty96",
-    "ip_address":"116.66.205.182",
-    "channel":"11",
-    "port":8011,
-  },
-  {
-    "username":"admin_it",
-    "password":"qwerty96",
-    "ip_address":"116.66.205.182",
-    "channel":"12",
-    "port":8012,
-  },
-  {
-    "username":"admin_it",
-    "password":"qwerty96",
-    "ip_address":"116.66.205.182",
-    "channel":"13",
-    "port":8013,
-  },
-  {
-    "username": "admin_it",
-    "password": "qwerty96",
-    "ip_address": "116.66.205.182",
-    "channel": "14",
-    "port": 8014,
-},
-{
-    "username": "admin_it",
-    "password": "qwerty96",
-    "ip_address": "116.66.205.182",
-    "channel": "15",
-    "port": 8015,
-},
-{
-    "username": "admin_it",
-    "password": "qwerty96",
-    "ip_address": "116.66.205.182",
-    "channel": "16",
-    "port": 8016,
-},
-{
-    "username": "admin_it",
-    "password": "qwerty96",
-    "ip_address": "116.66.205.182",
-    "channel": "19",
-    "port": 8019,
-},
-]
-var username = "admin_it";
-var password="qwerty96";
-// let req = axios.get("/api/camera");
-// console.log("test")
-axios.get('http://localhost/api/camera')
-  .then(response => {
-    // console.log(response.data.data)
-   response.data.data.forEach((element, index) => {
-  let stream = new rtspStream({
-    name: 'name',
-    streamUrl: element["url"] + `/cam/realmonitor?channel=${element["channel"]}&subtype=1`,
-    wsPort: element["http_port"],
-    
-    
+if (!SERVICE_TOKEN) {
+  logger.error("STREAM_SERVICE_TOKEN tidak diset. Service berhenti.");
+  process.exit(1);
+}
+
+const http = axios.create({
+  baseURL: API_URL,
+  timeout: 10000,
+  headers: { Authorization: `Bearer ${SERVICE_TOKEN}` },
 });
-stream.on('message', (message) => {
-  console.log(`Received: ${message}`);
-  // Send a response back to the client
-  stream.send(`hai`);
-});
-})
-  })
-  .catch(error => {
-    console.error(error);
+
+const states = new Map();
+
+const cooldown = new Map();
+
+const ffmpegArgs = (url) => ["-rtsp_transport", "tcp", "-i", url, "-f", "mpeg1video", "-"];
+
+function spawnFfmpeg(url) {
+  return spawn("ffmpeg", ffmpegArgs(url), { detached: false });
+}
+
+function pipeToWs(videoStream, child) {
+  child.stdout.on("data", (data) => {
+    try {
+      videoStream.wsServer?.broadcast?.(data);
+    } catch (_) {
+
+    }
   });
+  child.stderr.on("data", () => {
 
+  });
+}
 
-   
-// streamThird = new rtspStream({
-//     name: 'name',
+function watchChild(camId, child) {
+  if (!child || typeof child.on !== "function") return;
+  let dead = false;
+  const onDead = (reason) => {
+    if (dead) return;
+    dead = true;
+    logger.warn("ffmpeg mati", { cameraId: camId, reason });
+    scheduleReconnect(camId);
+  };
+  child.on("exit", (code, signal) => onDead(`exit code=${code} signal=${signal}`));
+  child.on("error", (err) => onDead(`error ${err.message}`));
+}
 
-//     streamUrl: 'rtsp://' + username + ':' + password + '@' + ip_address +':554/cam/realmonitor?channel=12&subtype=1',
-//     wsPort: 8082 
-// });
-// streamThird = new rtspStream({
-//     name: 'name',
+function backoffDelay(attempts) {
+  return Math.min(BACKOFF_MAX_MS, 1000 * 2 ** attempts);
+}
 
-//     streamUrl: 'rtsp://' + username + ':' + password + '@' + ip_address +':554/cam/realmonitor?channel=13&subtype=1',
-//     wsPort: 8083 
-// });
-// streamThird = new rtspStream({
-//     name: 'name',
+async function acquireStream(cam) {
+  const log = logger.child({ cameraId: cam.id });
+  if (states.has(cam.id)) return;
 
-//     streamUrl: 'rtsp://' + username + ':' + password + '@' + ip_address +':554/cam/realmonitor?channel=14&subtype=1',
-//     wsPort: 8084 
-// });
-// streamThird = new rtspStream({
-//     name: 'name',
+  try {
+    const { data } = await http.get(`/api/internal/camera/${cam.id}/rtsp`);
+    if (!data || !data.url) {
+      log.warn("URL kosong, slot dilepas");
+      pool.release(cam.id);
+      return;
+    }
+    const videoStream = new RtspStream({
+      name: `cam-${cam.id}`,
+      streamUrl: data.url,
+      wsPort: cam.http_port,
+    });
+    const state = {
+      cam,
+      url: data.url,
+      videoStream,
+      child: videoStream.stream ?? null,
+      timer: null,
+      attempts: 0,
+    };
+    watchChild(cam.id, state.child);
+    states.set(cam.id, state);
+    log.info("stream aktif", { wsPort: cam.http_port });
+  } catch (err) {
+    log.error("gagal memulai stream", { error: err.message });
+    pool.release(cam.id);
+  }
+}
 
-//     streamUrl: 'rtsp://' + username + ':' + password + '@' + ip_address +':554/cam/realmonitor?channel=15&subtype=1',
-//     wsPort: 8085
-// });
-// streamThird = new rtspStream({
-//     name: 'name',
+function releaseStream(camId) {
+  const st = states.get(camId);
+  if (!st) return;
+  if (st.timer) clearTimeout(st.timer);
+  try {
+    st.child?.kill();
+  } catch (_) {
 
-//     streamUrl: 'rtsp://' + username + ':' + password + '@' + ip_address +':554/cam/realmonitor?channel=15&subtype=1',
-//     wsPort: 8086
-// });
+  }
+  const srv = st.videoStream?.wsServer;
+  if (srv) {
+    try {
+      srv.clients.forEach((c) => {
+        try {
+          c.terminate();
+        } catch (_) {
+
+        }
+      });
+    } catch (_) {
+
+    }
+    try {
+      srv.close();
+    } catch (_) {
+
+    }
+  }
+  states.delete(camId);
+}
+
+async function respawn(camId) {
+  const st = states.get(camId);
+  if (!st) return;
+  st.timer = null;
+  const log = logger.child({ cameraId: camId });
+
+  try {
+    const { data } = await http.get(`/api/internal/camera/${camId}/rtsp`);
+    if (data && data.url) st.url = data.url;
+  } catch (err) {
+    log.warn("re-fetch URL gagal", { error: err.message });
+  }
+
+  const child = spawnFfmpeg(st.url);
+  st.child = child;
+  pipeToWs(st.videoStream, child);
+  watchChild(camId, child);
+  st.attempts = 0;
+  log.info("ffmpeg di-respawn");
+}
+
+function scheduleReconnect(camId) {
+  const st = states.get(camId);
+  if (!st || st.timer) return;
+  st.attempts += 1;
+
+  if (st.attempts > MAX_RECONNECT_ATTEMPTS) {
+    logger.warn("slot dilepas setelah gagal berulang", {
+      cameraId: camId,
+      attempts: st.attempts,
+      cooldownMs: COOLDOWN_MS,
+    });
+    cooldown.set(camId, Date.now() + COOLDOWN_MS);
+    pool.release(camId);
+    return;
+  }
+
+  const delay = backoffDelay(st.attempts);
+  logger.info("reconnect terjadwal", {
+    cameraId: camId,
+    attempts: st.attempts,
+    delayMs: delay,
+  });
+  st.timer = setTimeout(() => respawn(camId), delay);
+}
+
+async function sync() {
+  try {
+    const { data } = await http.get("/api/internal/cameras");
+    const cameras = (data && data.data) || [];
+    const liveIds = new Set(cameras.map((c) => c.id));
+    const now = Date.now();
+
+    for (const [id, until] of cooldown) {
+      if (until <= now) cooldown.delete(id);
+    }
+
+    for (const cam of cameras) {
+      if (cooldown.has(cam.id)) continue;
+      pool.request(cam);
+    }
+
+    for (const id of [...pool.activeIds(), ...pool.pendingIds()]) {
+      if (!liveIds.has(id)) {
+        logger.info("kamera dihapus dari backend, distop", { cameraId: id });
+        cooldown.delete(id);
+        pool.release(id);
+      }
+    }
+
+    await Promise.all(
+      pool.activeIds().map(async (id) => {
+        try {
+          await http.post(`/api/internal/camera/${id}/heartbeat`);
+        } catch (_) {
+
+        }
+      })
+    );
+
+    logger.info("sync selesai", {
+      active: pool.activeCount(),
+      pending: pool.pendingCount(),
+      cooldown: cooldown.size,
+      maxConcurrent: MAX_CONCURRENT,
+    });
+    return true;
+  } catch (err) {
+    logger.error("gagal sync daftar kamera", { error: err.message });
+    return false;
+  }
+}
+
+async function shutdown(signal) {
+  logger.info("shutdown dimulai", { signal, active: pool.activeCount() });
+  for (const id of pool.activeIds()) {
+    pool.release(id);
+  }
+  process.exit(0);
+}
+
+const pool = createPool({
+  maxConcurrency: MAX_CONCURRENT,
+  onAcquire: acquireStream,
+  onRelease: releaseStream,
+});
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("uncaughtException", (err) => {
+  logger.error("uncaughtException", { error: err.message, stack: err.stack });
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason) => {
+  logger.error("unhandledRejection", { reason: String(reason) });
+  process.exit(1);
+});
+
+logger.info("service berjalan", {
+  api: API_URL,
+  maxConcurrent: MAX_CONCURRENT,
+  cpuCount,
+  resyncMs: RESYNC_INTERVAL_MS,
+});
+
+const SYNC_FAIL_MS = Number(process.env.SYNC_FAIL_MS || 10000);
+let syncTimer = null;
+
+function scheduleSync(delay) {
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(runSync, delay);
+}
+
+async function runSync() {
+
+  const ok = await sync();
+  scheduleSync(ok ? RESYNC_INTERVAL_MS : SYNC_FAIL_MS);
+}
+
+runSync();

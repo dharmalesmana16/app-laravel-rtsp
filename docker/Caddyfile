@@ -1,0 +1,10 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	# reverse_proxy ke container app (Laravel + WS proxy internal).
+	# Caddy otomatis handle WebSocket upgrade & TLS (Let's Encrypt).
+	reverse_proxy app:80 {
+		header_up Host {host}
+		flush_interval -1
+	}
+}

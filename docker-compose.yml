@@ -1,0 +1,101 @@
+# app-laravel-rtsp — Docker Compose (dengan Caddy edge & opsi WireGuard host)
+# Salin .env.docker.example -> .env, lalu: docker compose up -d --build
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_STADIA_API_KEY: ${VITE_STADIA_API_KEY:-}
+    image: rtsp-app
+    restart: unless-stopped
+    # Tidak publish port ke host — diakses lewat Caddy (internal docker network).
+    environment:
+      APP_NAME: "RTSP Monitor"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      APP_URL: ${APP_URL}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-rtsp}
+      DB_USERNAME: ${DB_USERNAME:-rtsp}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SESSION_DRIVER: database
+      CACHE_STORE: file
+      QUEUE_CONNECTION: database
+      STREAM_SERVICE_TOKEN: ${STREAM_SERVICE_TOKEN}
+    volumes:
+      - storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - rtspnet
+
+  stream:
+    build:
+      context: .
+      dockerfile: docker/stream.Dockerfile
+    image: rtsp-stream
+    restart: unless-stopped
+    environment:
+      API_URL: http://app
+      STREAM_SERVICE_TOKEN: ${STREAM_SERVICE_TOKEN}
+      MAX_CONCURRENT_STREAMS: ${MAX_CONCURRENT_STREAMS:-16}
+      MAX_RECONNECT_ATTEMPTS: ${MAX_RECONNECT_ATTEMPTS:-10}
+      STREAM_COOLDOWN_MS: ${STREAM_COOLDOWN_MS:-300000}
+      RESYNC_INTERVAL_MS: ${RESYNC_INTERVAL_MS:-60000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      - app
+    networks:
+      - rtspnet
+
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-rtsp}
+      MYSQL_USER: ${DB_USERNAME:-rtsp}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rtspnet
+
+  # === Edge: TLS otomatis (Let's Encrypt) + reverse proxy ===
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-:80}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    networks:
+      - rtspnet
+
+volumes:
+  storage:
+  dbdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  rtspnet:
+    driver: bridge

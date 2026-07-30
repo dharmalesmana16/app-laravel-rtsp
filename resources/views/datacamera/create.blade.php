@@ -1,156 +1,132 @@
 @extends('template.index')
 @section('content')
-    <div class="mx-auto container pt-20">
-        <div class="bg-white rounded-3xl shadow-md p-5 mb-5">
-            <form action="" x-data="{
+    <div class="px-4 py-6 mx-auto max-w-3xl sm:px-6 lg:px-8">
+        <div class="mb-6">
+            <a href="/camera" class="inline-flex items-center text-sm text-gray-500 hover:text-main transition-colors">
+                <svg class="w-4 h-4 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Kembali
+            </a>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">Tambah CCTV Baru</h2>
+            <form x-data="{
                 ip: '',
                 mac: '',
+                subnet: '',
                 gateway: '',
                 dns: '',
+                resolusi: '',
                 auth_user: '',
                 auth_password: '',
                 tipe: '',
                 brand: '',
-                id_vendor: '',
-                id_kartu: '',
+                latitude: '',
+                longitude: '',
+                vendor_id: '',
+                kartu_id: '',
                 channel: '',
-            
             }">
-                <div class="mb-3">
-                    <label for="ip" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        IP Camera
-                    </label>
-                    <x-text-input id="ip" class="" x-model="ip"></x-text-input>
-
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <x-input-label for="ip" value="IP Camera" />
+                        <x-text-input id="ip" class="w-full" x-model="ip" placeholder="192.168.1.100" />
+                    </div>
+                    <div>
+                        <x-input-label for="mac" value="Alamat MAC" />
+                        <x-text-input x-model="mac" id="mac" class="w-full" placeholder="AA:BB:CC:DD:EE:FF" />
+                    </div>
+                    <div>
+                        <x-input-label for="channel" value="Channel" />
+                        <x-text-input x-model="channel" id="channel" class="w-full" placeholder="1" />
+                    </div>
+                    <div>
+                        <x-input-label for="brand" value="Brand" />
+                        <x-text-input x-model="brand" id="brand" class="w-full" placeholder="EZVIZ / DAHUA / HIKVISION" />
+                    </div>
+                    <div>
+                        <x-input-label for="tipe" value="Tipe CCTV" />
+                        <x-text-input x-model="tipe" id="tipe" class="w-full" placeholder="Tipe camera" />
+                    </div>
+                    <div>
+                        <x-input-label for="resolusi" value="Resolusi" />
+                        <x-text-input x-model="resolusi" id="resolusi" class="w-full" placeholder="1080p / 4MP / 8MP" />
+                    </div>
+                    <div>
+                        <x-input-label for="vendor_id" value="Vendor" />
+                        <select x-model="vendor_id" id="vendor_id"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
+                            <option value="">Pilih Vendor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <x-input-label for="kartu_id" value="SIM Card" />
+                        <select x-model="kartu_id" id="kartu_id"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
+                            <option value="">Pilih SIM Card</option>
+                        </select>
+                    </div>
+                    <div>
+                        <x-input-label for="subnet" value="Subnet" />
+                        <x-text-input x-model="subnet" id="subnet" class="w-full" placeholder="255.255.255.0" />
+                    </div>
+                    <div>
+                        <x-input-label for="gateway" value="Alamat Gateway" />
+                        <x-text-input x-model="gateway" id="gateway" class="w-full" placeholder="192.168.1.1" />
+                    </div>
+                    <div>
+                        <x-input-label for="dns" value="Alamat DNS" />
+                        <x-text-input x-model="dns" id="dns" class="w-full" placeholder="8.8.8.8" />
+                    </div>
+                    <div>
+                        <x-input-label for="latitude" value="Latitude" />
+                        <x-text-input x-model="latitude" id="latitude" class="w-full" placeholder="-8.4095" />
+                    </div>
+                    <div>
+                        <x-input-label for="longitude" value="Longitude" />
+                        <x-text-input x-model="longitude" id="longitude" class="w-full" placeholder="115.1889" />
+                    </div>
+                    <div>
+                        <x-input-label for="auth_user" value="Auth User CCTV" />
+                        <x-text-input x-model="auth_user" id="auth_user" class="w-full" placeholder="admin" />
+                    </div>
+                    <div>
+                        <x-input-label for="auth_password" value="Auth Password CCTV" />
+                        <x-text-input type="password" x-model="auth_password" id="auth_password" class="w-full" placeholder="******" />
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="mac" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Alamat MAC
-                    </label>
-                    <x-text-input x-model="mac" id="mac" class=""></x-text-input>
-
-                </div>
-                <div class="mb-3">
-                    <label for="gateway" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Alamat Gateway
-                    </label>
-                    <x-text-input x-model="gateway" id="gateway" class=""></x-text-input>
-
-                </div>
-                <div class="mb-3">
-                    <label for="dns" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Alamat DNS
-                    </label>
-                    <x-text-input x-model="dns" id="dns" class=""></x-text-input>
-
-                </div>
-                <div class="mb-3">
-                    <label for="channel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Channel
-                    </label>
-                    <x-text-input x-model="channel" id="channel" class=""></x-text-input>
-
-                </div>
-                <div class="mb-3">
-                    <label for="auth_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Auth User CCTV
-                    </label>
-                    <x-text-input x-model="auth_user" id="auth_user" class=""></x-text-input>
-
-                </div>
-                <div class="mb-3">
-                    <label for="auth_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Auth Password CCTV
-                    </label>
-                    <x-text-input tipe="password" x-model="auth_password" id="auth_password" class=""></x-text-input>
-
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Tipe CCTV
-                    </label>
-                    <x-text-input x-model="tipe" id="tipe" class=""></x-text-input>
-
-                </div>
-
-
-                <div class="text-right">
+                <div class="flex justify-end mt-8 space-x-3">
+                    <a href="/camera"
+                        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                        Batal
+                    </a>
                     <button type="submit" x-on:click.prevent="onCreate"
-                        class="text-right text-white bg-gradient-to-r 
-    from-lime-200 via-lime-400 to-lime-500 
-    hover:bg-gradient-to-br focus:ring-4 
-    focus:outline-none focus:ring-lime-300 
-    dark:focus:ring-lime-800 font-medium rounded-lg text-sm px-4 py-2 text-center  mb-2">
+                        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-main rounded-xl transition-all duration-200 hover:bg-main-600 hover:shadow-md focus:ring-2 focus:ring-main-300 focus:outline-none">
+                        <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
                         Tambah Data
                     </button>
                 </div>
             </form>
-
         </div>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-
-            $.ajax({
-
-                type: "get",
-                url: "https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json",
-                data: "data",
-                dataType: "json",
-                success: function(response) {
-                    console.log(response)
-                    let optionsHtml;
-                    $.each(response, function(index, item) {
-                        optionsHtml += '<option value="' + item.id + '">' + item.name +
-                            '</option>';
-                    });
-                    $('.data_provinsi').html(optionsHtml);
-
-                }
-            });
-
-            $('.data_provinsi').change(function(e) {
-                e.preventDefault();
-                var selectedLabel = $(this).find('option:selected').text();
-                // console.log(selectedLabel)
-                $.ajax({
-                    type: "get",
-                    url: `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${e.target.value}.json`,
-                    data: "data",
-                    dataType: "json",
-                    success: function(response) {
-                        console.log(response)
-                        let optionsHtml;
-                        $.each(response, function(index, item) {
-                            optionsHtml += '<option value="' + item.id + '">' + item
-                                .name +
-                                '</option>';
-                        });
-                        $('.data_kabupaten').html(optionsHtml);
-
-                    }
+            axios.get('/api/vendor').then(res => {
+                let options = '<option value="">Pilih Vendor</option>';
+                res.data.data.forEach(v => {
+                    options += `<option value="${v.id}">${v.nama_perusahaan}</option>`;
                 });
+                document.getElementById('vendor_id').innerHTML = options;
             });
-            $('.data_kabupaten').change(function(e) {
-                e.preventDefault();
-                var selectedLabel = $(this).find('option:selected').text();
-                $.ajax({
-                    type: "get",
-                    url: `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${e.target.value}.json`,
-                    data: "data",
-                    dataType: "json",
-                    success: function(response) {
-                        console.log(response)
-                        let optionsHtml;
-                        $.each(response, function(index, item) {
-                            optionsHtml += '<option value="' + item.id + '">' + item
-                                .name +
-                                '</option>';
-                        });
-                        $('.data_kecamatan').html(optionsHtml);
-
-                    }
+            axios.get('/api/kartu').then(res => {
+                let options = '<option value="">Pilih SIM Card</option>';
+                res.data.data.forEach(k => {
+                    options += `<option value="${k.id}">${k.nomor}</option>`;
                 });
+                document.getElementById('kartu_id').innerHTML = options;
             });
         })
 
@@ -159,45 +135,34 @@
             const metaTag = document.head.querySelector('meta[name="csrf-token"]');
             const postData = {
                 ip: this.ip,
-                mac: this.mac,
-                gateway: this.gateway,
-                dns: this.dns,
+                mac: this.mac || null,
+                subnet: this.subnet || null,
+                gateway: this.gateway || null,
+                dns: this.dns || null,
+                resolusi: this.resolusi || null,
                 auth_user: this.auth_user,
-                channel: this.channel,
                 auth_password: this.auth_password,
-                tipe: this.tipe,
-                id_vendor: this.id_vendor == '' ? null : this.id_vendor,
-                id_kartu: this.id_kartu == '' ? null : this.id_kartu,
+                channel: this.channel,
+                tipe: this.tipe || null,
+                brand: this.brand || null,
+                latitude: this.latitude || null,
+                longitude: this.longitude || null,
+                vendor_id: this.vendor_id == '' ? null : this.vendor_id,
+                kartu_id: this.kartu_id == '' ? null : this.kartu_id,
             };
             let headers = {
-                // "Content-Type": "application/json",
                 'X-CSRF-Token': metaTag.getAttribute('content')
             }
-            // console.log(metaTag.getAttribute('content'))
-            // console.log(this.harga_beli)
             axios.post("/api/camera", postData, headers).then(function(response) {
-
                 Swal.fire({
                     title: "Berhasil !",
                     icon: "success",
                     timer: 1500,
-
                 });
                 setTimeout(() => {
                     window.location.href = "/camera"
                 }, 1000);
             });
-            // fetch('/api/barang', {
-            //         method: 'POST', // Specify the method
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //             'X-CSRF-Token': metaTag.getAttribute('content')
-            //         },
-            //         body: JSON.stringify(postData) // Convert the JavaScript object to a JSON string
-            //     })
-            //     .then(response => console.log(response)) // Parse the JSON response from the server
-            //     .then(data => console.log(data)) // Handle the response data
-            //     .catch(error => console.error('Error:', error)); // Handle any errors
         }
     </script>
 @endsection
