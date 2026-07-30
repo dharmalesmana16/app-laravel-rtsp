@@ -63,7 +63,8 @@
                                 class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                                 <option value="aktif">Aktif</option>
                                 <option value="selesai">Selesai</option>
-                                <option value="ditunda">Ditunda</option>
+                                <option value="batal">Batal</option>
+                                <option value="pending">Pending</option>
                             </select>
                         </div>
                     </div>

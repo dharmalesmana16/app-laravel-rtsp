@@ -20,8 +20,6 @@
                 dns: '',
                 kuota: '',
                 sisa_kuota: '',
-                latitude: '',
-                longitude: '',
                 init() {
                     axios.get(`/api/kartu/${this.id}`).then(res => {
                         const d = res.data.data
@@ -32,8 +30,6 @@
                         this.dns = d.dns || ''
                         this.kuota = d.kuota || ''
                         this.sisa_kuota = d.sisa_kuota || ''
-                        this.latitude = d.latitude || ''
-                        this.longitude = d.longitude || ''
                     })
                 }
             }">
@@ -66,14 +62,6 @@
                         <x-input-label for="sisa_kuota" value="Sisa Kuota (GB)" />
                         <x-text-input type="number" step="0.1" min="0" x-model="sisa_kuota" id="sisa_kuota" class="w-full" />
                     </div>
-                    <div>
-                        <x-input-label for="latitude" value="Latitude" />
-                        <x-text-input x-model="latitude" id="latitude" class="w-full" />
-                    </div>
-                    <div>
-                        <x-input-label for="longitude" value="Longitude" />
-                        <x-text-input x-model="longitude" id="longitude" class="w-full" />
-                    </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
                     <a href="/kartu"
@@ -100,8 +88,6 @@
                 dns: this.dns || null,
                 kuota: this.kuota || null,
                 sisa_kuota: this.sisa_kuota || null,
-                latitude: this.latitude || null,
-                longitude: this.longitude || null,
             };
             axios.put(`/api/kartu/${this.id}`, postData, {
                 headers: { 'X-CSRF-Token': metaTag.getAttribute('content') }

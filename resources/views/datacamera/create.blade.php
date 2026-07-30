@@ -14,9 +14,6 @@
             <form x-data="{
                 ip: '',
                 mac: '',
-                subnet: '',
-                gateway: '',
-                dns: '',
                 resolusi: '',
                 auth_user: '',
                 auth_password: '',
@@ -27,6 +24,16 @@
                 vendor_id: '',
                 kartu_id: '',
                 channel: '',
+                allVendors: [],
+                allKartu: [],
+                init() {
+                    axios.get('/api/vendor?per_page=200').then(res => {
+                        this.allVendors = res.data.data
+                    })
+                    axios.get('/api/kartu?per_page=200').then(res => {
+                        this.allKartu = res.data.data
+                    })
+                }
             }">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
@@ -58,6 +65,9 @@
                         <select x-model="vendor_id" id="vendor_id"
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                             <option value="">Pilih Vendor</option>
+                            <template x-for="v in allVendors" :key="v.id">
+                                <option :value="v.id" x-text="v.nama_perusahaan"></option>
+                            </template>
                         </select>
                     </div>
                     <div>
@@ -65,19 +75,10 @@
                         <select x-model="kartu_id" id="kartu_id"
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                             <option value="">Pilih SIM Card</option>
+                            <template x-for="k in allKartu" :key="k.id">
+                                <option :value="k.id" x-text="k.nomor"></option>
+                            </template>
                         </select>
-                    </div>
-                    <div>
-                        <x-input-label for="subnet" value="Subnet" />
-                        <x-text-input x-model="subnet" id="subnet" class="w-full" placeholder="255.255.255.0" />
-                    </div>
-                    <div>
-                        <x-input-label for="gateway" value="Alamat Gateway" />
-                        <x-text-input x-model="gateway" id="gateway" class="w-full" placeholder="192.168.1.1" />
-                    </div>
-                    <div>
-                        <x-input-label for="dns" value="Alamat DNS" />
-                        <x-text-input x-model="dns" id="dns" class="w-full" placeholder="8.8.8.8" />
                     </div>
                     <div>
                         <x-input-label for="latitude" value="Latitude" />
@@ -113,32 +114,12 @@
         </div>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            axios.get('/api/vendor').then(res => {
-                let options = '<option value="">Pilih Vendor</option>';
-                res.data.data.forEach(v => {
-                    options += `<option value="${v.id}">${v.nama_perusahaan}</option>`;
-                });
-                document.getElementById('vendor_id').innerHTML = options;
-            });
-            axios.get('/api/kartu').then(res => {
-                let options = '<option value="">Pilih SIM Card</option>';
-                res.data.data.forEach(k => {
-                    options += `<option value="${k.id}">${k.nomor}</option>`;
-                });
-                document.getElementById('kartu_id').innerHTML = options;
-            });
-        })
-
         function onCreate(e) {
             e.preventDefault()
             const metaTag = document.head.querySelector('meta[name="csrf-token"]');
             const postData = {
                 ip: this.ip,
                 mac: this.mac || null,
-                subnet: this.subnet || null,
-                gateway: this.gateway || null,
-                dns: this.dns || null,
                 resolusi: this.resolusi || null,
                 auth_user: this.auth_user,
                 auth_password: this.auth_password,

@@ -19,8 +19,6 @@
                 dns: '',
                 kuota: '',
                 sisa_kuota: '',
-                latitude: '',
-                longitude: '',
             }">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="sm:col-span-2">
@@ -51,14 +49,6 @@
                         <x-input-label for="sisa_kuota" value="Sisa Kuota (GB)" />
                         <x-text-input type="number" step="0.1" min="0" x-model="sisa_kuota" id="sisa_kuota" class="w-full" placeholder="30" />
                     </div>
-                    <div>
-                        <x-input-label for="latitude" value="Latitude" />
-                        <x-text-input x-model="latitude" id="latitude" class="w-full" placeholder="-8.4095" />
-                    </div>
-                    <div>
-                        <x-input-label for="longitude" value="Longitude" />
-                        <x-text-input x-model="longitude" id="longitude" class="w-full" placeholder="115.1889" />
-                    </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
                     <a href="/kartu"
@@ -88,8 +78,6 @@
                 dns: this.dns || null,
                 kuota: this.kuota || null,
                 sisa_kuota: this.sisa_kuota || null,
-                latitude: this.latitude || null,
-                longitude: this.longitude || null,
             };
             axios.post("/api/kartu", postData, {
                 headers: { 'X-CSRF-Token': metaTag.getAttribute('content') }

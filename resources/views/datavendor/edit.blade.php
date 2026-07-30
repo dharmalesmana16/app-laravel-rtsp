@@ -72,6 +72,10 @@
                         <x-input-label for="kota" value="Kota / Kabupaten" />
                         <x-text-input x-model="kota" id="kota" class="w-full" />
                     </div>
+                    <div>
+                        <x-input-label for="kecamatan" value="Kecamatan" />
+                        <x-text-input x-model="kecamatan" id="kecamatan" class="w-full" />
+                    </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
                     <a href="/vendor"

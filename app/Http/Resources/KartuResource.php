@@ -18,8 +18,6 @@ class KartuResource extends JsonResource
             'dns' => $this->dns,
             'kuota' => $this->kuota,
             'sisa_kuota' => $this->sisa_kuota,
-            'latitude' => $this->latitude,
-            'longitude' => $this->longitude,
             'cameras_count' => $this->whenCounted('camera'),
             'created_at' => $this->created_at,
         ];

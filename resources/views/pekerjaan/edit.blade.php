@@ -21,17 +21,22 @@
                 vendor_id: '',
                 allVendors: [],
                 init() {
-                    axios.get('/api/vendor?per_page=200').then(res => {
-                        this.allVendors = res.data.data
-                    })
-                    axios.get(`/api/pekerjaan/${this.id}`).then(res => {
-                        const d = res.data.data
+                    Promise.all([
+                        axios.get('/api/vendor?per_page=200'),
+                        axios.get(`/api/pekerjaan/${this.id}`)
+                    ]).then(([vendorRes, pekerjaanRes]) => {
+                        this.allVendors = vendorRes.data.data
+
+                        const d = pekerjaanRes.data.data
                         this.nama = d.nama
                         this.alamat = d.alamat || ''
                         this.deskripsi = d.deskripsi || ''
                         this.tanggal = d.tanggal || ''
                         this.status = d.status || 'aktif'
-                        this.vendor_id = d.vendor_id || ''
+
+                        this.$nextTick(() => {
+                            this.vendor_id = d.vendor_id ? String(d.vendor_id) : ''
+                        })
                     })
                 }
             }">
@@ -46,8 +51,7 @@
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                             <option value="">-- Pilih Vendor --</option>
                             <template x-for="v in allVendors" :key="v.id">
-                                <option :value="v.id" x-text="v.nama_perusahaan"
-                                    :selected="v.id == vendor_id"></option>
+                                <option :value="v.id" x-text="v.nama_perusahaan"></option>
                             </template>
                         </select>
                     </div>
@@ -74,7 +78,8 @@
                                 class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                                 <option value="aktif">Aktif</option>
                                 <option value="selesai">Selesai</option>
-                                <option value="ditunda">Ditunda</option>
+                                <option value="batal">Batal</option>
+                                <option value="pending">Pending</option>
                             </select>
                         </div>
                     </div>

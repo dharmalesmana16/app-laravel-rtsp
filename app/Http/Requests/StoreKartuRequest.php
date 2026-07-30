@@ -29,8 +29,6 @@ class StoreKartuRequest extends FormRequest
             'dns' => ['nullable', 'ip', 'max:45'],
             'kuota' => ['nullable', 'numeric', 'min:0'],
             'sisa_kuota' => ['nullable', 'numeric', 'min:0'],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
         ];
     }
 }

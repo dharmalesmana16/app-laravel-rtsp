@@ -142,7 +142,6 @@
                 pic: this.pic,
                 alamat: this.alamat,
                 cp: this.cp,
-                email: this.email,
                 provinsi: this.provinsi,
                 kecamatan: this.kecamatan,
                 kota: this.kota,

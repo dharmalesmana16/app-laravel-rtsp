@@ -18,6 +18,7 @@ class VendorResource extends JsonResource
             "provinsi" => $this->provinsi,
             "kota" => $this->kota,
             "kecamatan" => $this->kecamatan,
+            "kode_pos" => $this->kode_pos,
             "email_perusahaan" => $this->email_perusahaan,
             "cameras_count" => $this->whenCounted('cameras'),
             "created_at" => $this->created_at,

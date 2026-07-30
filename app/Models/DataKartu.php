@@ -17,8 +17,6 @@ class DataKartu extends Model
         "dns",
         "kuota",
         "sisa_kuota",
-        "latitude",
-        "longitude",
     ];
 
     public function camera(): HasOne

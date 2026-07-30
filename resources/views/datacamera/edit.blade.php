@@ -15,9 +15,6 @@
                 id: {{ request()->route('camera') }},
                 ip: '',
                 mac: '',
-                subnet: '',
-                gateway: '',
-                dns: '',
                 resolusi: '',
                 auth_user: '',
                 auth_password: '',
@@ -28,22 +25,31 @@
                 vendor_id: '',
                 kartu_id: '',
                 channel: '',
+                allVendors: [],
+                allKartu: [],
                 init() {
-                    axios.get(`/api/camera/${this.id}`).then(res => {
-                        const d = res.data.data
+                    Promise.all([
+                        axios.get('/api/vendor?per_page=200'),
+                        axios.get('/api/kartu?per_page=200'),
+                        axios.get(`/api/camera/${this.id}`)
+                    ]).then(([vendorRes, kartuRes, cameraRes]) => {
+                        this.allVendors = vendorRes.data.data
+                        this.allKartu = kartuRes.data.data
+
+                        const d = cameraRes.data.data
                         this.ip = d.ip
                         this.mac = d.mac || ''
-                        this.subnet = d.subnet || ''
-                        this.gateway = d.gateway || ''
-                        this.dns = d.dns || ''
                         this.resolusi = d.resolusi || ''
                         this.tipe = d.tipe || ''
                         this.brand = d.brand || ''
                         this.latitude = d.latitude || ''
                         this.longitude = d.longitude || ''
-                        this.vendor_id = d.vendor_id || ''
-                        this.kartu_id = d.kartu_id || ''
                         this.channel = d.channel || ''
+
+                        this.$nextTick(() => {
+                            this.vendor_id = d.vendor_id ? String(d.vendor_id) : ''
+                            this.kartu_id = d.kartu_id ? String(d.kartu_id) : ''
+                        })
                     })
                 }
             }">
@@ -77,6 +83,9 @@
                         <select x-model="vendor_id" id="vendor_id"
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                             <option value="">Pilih Vendor</option>
+                            <template x-for="v in allVendors" :key="v.id">
+                                <option :value="v.id" x-text="v.nama_perusahaan"></option>
+                            </template>
                         </select>
                     </div>
                     <div>
@@ -84,19 +93,10 @@
                         <select x-model="kartu_id" id="kartu_id"
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
                             <option value="">Pilih SIM Card</option>
+                            <template x-for="k in allKartu" :key="k.id">
+                                <option :value="k.id" x-text="k.nomor"></option>
+                            </template>
                         </select>
-                    </div>
-                    <div>
-                        <x-input-label for="subnet" value="Subnet" />
-                        <x-text-input x-model="subnet" id="subnet" class="w-full" />
-                    </div>
-                    <div>
-                        <x-input-label for="gateway" value="Alamat Gateway" />
-                        <x-text-input x-model="gateway" id="gateway" class="w-full" />
-                    </div>
-                    <div>
-                        <x-input-label for="dns" value="Alamat DNS" />
-                        <x-text-input x-model="dns" id="dns" class="w-full" />
                     </div>
                     <div>
                         <x-input-label for="latitude" value="Latitude" />
@@ -129,32 +129,12 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            axios.get('/api/vendor').then(res => {
-                let options = '<option value="">Pilih Vendor</option>';
-                res.data.data.forEach(v => {
-                    options += `<option value="${v.id}">${v.nama_perusahaan}</option>`;
-                });
-                document.getElementById('vendor_id').innerHTML = options;
-            });
-            axios.get('/api/kartu').then(res => {
-                let options = '<option value="">Pilih SIM Card</option>';
-                res.data.data.forEach(k => {
-                    options += `<option value="${k.id}">${k.nomor}</option>`;
-                });
-                document.getElementById('kartu_id').innerHTML = options;
-            });
-        })
-
         function onUpdate(e) {
             e.preventDefault()
             const metaTag = document.head.querySelector('meta[name="csrf-token"]');
             const postData = {
                 ip: this.ip,
                 mac: this.mac || null,
-                subnet: this.subnet || null,
-                gateway: this.gateway || null,
-                dns: this.dns || null,
                 resolusi: this.resolusi || null,
                 auth_user: this.auth_user,
                 auth_password: this.auth_password,
