@@ -1,6 +1,10 @@
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
 
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
+
 function initMap() {
     const mapEl = document.getElementById('map');
     if (!mapEl) {
@@ -22,19 +26,10 @@ function initMap() {
     const map = L.map('map').setView(defaultCenter, 14);
     map.scrollWheelZoom.disable();
 
-    const stadiaKey = import.meta.env.VITE_STADIA_API_KEY;
-    if (stadiaKey) {
-        L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${stadiaKey}`, {
-            maxZoom: 21,
-            attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-        }).addTo(map);
-    } else {
-        console.warn('VITE_STADIA_API_KEY belum diset di .env');
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-        }).addTo(map);
-    }
+    L.tileLayer('/tiles/{z}/{x}/{y}', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+    }).addTo(map);
 
     if (cameras.length === 0) {
         return;
@@ -52,9 +47,9 @@ function initMap() {
 
         const popupHtml = `
             <div style="min-width:180px">
-                <div style="font-weight:700;font-size:14px;margin-bottom:4px">${camera.ip}</div>
-                <div style="font-size:12px;color:#6b7280">Brand: ${camera.brand ?? '-'}</div>
-                <div style="font-size:12px;color:#6b7280">Vendor: ${vendorName}</div>
+                <div style="font-weight:700;font-size:14px;margin-bottom:4px">${escapeHtml(camera.ip)}</div>
+                <div style="font-size:12px;color:#6b7280">Brand: ${escapeHtml(camera.brand)}</div>
+                <div style="font-size:12px;color:#6b7280">Vendor: ${escapeHtml(vendorName)}</div>
                 <div style="font-size:12px;margin-top:6px">${statusBadge}</div>
             </div>`;
 

@@ -13,5 +13,7 @@ RUN npm ci --omit=dev
 COPY ecosystem.config.cjs ./
 COPY resources/js ./resources/js
 
+USER node
+
 # pm2-runtime jalan di foreground (Docker-friendly)
 CMD ["pm2-runtime", "ecosystem.config.cjs"]

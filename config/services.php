@@ -21,4 +21,6 @@ return [
 
     'stream_token' => env('STREAM_SERVICE_TOKEN'),
 
+    'stadia_key' => env('STADIA_API_KEY'),
+
 ];

@@ -6,8 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        VITE_STADIA_API_KEY: ${VITE_STADIA_API_KEY:-}
+
     image: rtsp-app
     restart: unless-stopped
     # Tidak publish port ke host — diakses lewat Caddy (internal docker network).

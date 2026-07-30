@@ -5,7 +5,11 @@ cd /var/www/html
 
 # Generate APP_KEY bila kosong
 if [ -z "$APP_KEY" ]; then
-    echo "[entrypoint] APP_KEY kosong, generate..."
+    if [ "$APP_ENV" = "production" ]; then
+        echo "[entrypoint] FATAL: APP_KEY kosong di production. Set APP_KEY di environment."
+        exit 1
+    fi
+    echo "[entrypoint] APP_KEY kosong (dev mode), generate..."
     php artisan key:generate --force
 fi
 

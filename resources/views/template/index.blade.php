@@ -9,9 +9,12 @@
     <title>PLN Bali</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+        integrity="sha384-SOnAn/m2fVJCwnbEYgD4xzrPtvsXdElhOVvR8ND1YjB5nhGNwwf7nBQlhfAwHAZC" crossorigin="anonymous">
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet"
+        integrity="sha384-vNhcrEMPkKG6l3cUAUkZp042GDOa4n8sjJI1l/yu7gt1ApVQC8/QS8s0Lekrg+Yp" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet"
+        integrity="sha384-HphS8cQyN+eYiJ5PMbzShG6qZdRtvHPVLPkYb8JwMkmNgaIxrFVDhQe3jIbq3EZ2" crossorigin="anonymous">
     <script src="/js/jsmpeg.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/home.js'])
 </head>
@@ -197,8 +200,10 @@
         @yield('content')
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"
+        integrity="sha384-dXMudAuWq5MLjG7Tex8rC+3U/BPQ/OUAF6UyUa7DWzfAMW1JRIf2NuW2hAyGtsvO" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
+        integrity="sha384-l8f0VcPi/M1iHPv8egOnY/15TDwqgbOR1anMIJWvU6nLRgZVLTLSaNqi/TOoT5Fh" crossorigin="anonymous"></script>
 </body>
 
 </html>

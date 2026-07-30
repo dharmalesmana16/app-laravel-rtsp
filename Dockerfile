@@ -3,8 +3,6 @@ FROM node:20-bookworm AS frontend
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
-ARG VITE_STADIA_API_KEY=""
-ENV VITE_STADIA_API_KEY=$VITE_STADIA_API_KEY
 COPY . .
 RUN npm run build
 

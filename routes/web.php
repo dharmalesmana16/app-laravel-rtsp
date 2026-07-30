@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MapTileController;
 use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,10 @@ Route::get('/', function () {
     return auth()->check()
         ? redirect()->route('dashboard')
         : redirect()->route('login');
+});
+
+Route::get('/auth-check', function () {
+    return auth()->check() ? response('', 200) : response('', 401);
 });
 
 Route::middleware('auth')->group(function () {
@@ -36,6 +41,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/matrix', [MatrixController::class, 'index']);
+
+    Route::get('/tiles/{z}/{x}/{y}', [MapTileController::class, 'proxy'])
+        ->where(['z' => '[0-9]+', 'x' => '[0-9]+', 'y' => '[0-9]+']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
