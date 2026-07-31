@@ -13,6 +13,7 @@
             <h2 class="text-xl font-bold text-gray-900 mb-6">Edit Pekerjaan</h2>
             <form x-data="{
                 id: {{ request()->route('pekerjaan') }},
+                errors: {},
                 nama: '',
                 alamat: '',
                 deskripsi: '',
@@ -43,44 +44,54 @@
                 <div class="grid grid-cols-1 gap-6">
                     <div>
                         <x-input-label for="nama" value="Nama Pekerjaan" />
-                        <x-text-input id="nama" class="w-full" x-model="nama" />
+                        <x-text-input id="nama" class="w-full" x-model="nama" x-bind:class="errors.nama ? '!border-red-500' : ''" />
+                        <x-field-error name="nama" />
                     </div>
                     <div>
                         <x-input-label for="vendor" value="Vendor" />
                         <select x-model="vendor_id" id="vendor"
-                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200"
+                            x-bind:class="errors.vendor_id ? '!border-red-500' : ''">
                             <option value="">-- Pilih Vendor --</option>
                             <template x-for="v in allVendors" :key="v.id">
                                 <option :value="v.id" x-text="v.nama_perusahaan"></option>
                             </template>
                         </select>
+                        <x-field-error name="vendor_id" />
                     </div>
                     <div>
                         <x-input-label for="alamat" value="Alamat" />
                         <textarea x-model="alamat" id="alamat"
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200"
+                            x-bind:class="errors.alamat ? '!border-red-500' : ''"
                             rows="2"></textarea>
+                        <x-field-error name="alamat" />
                     </div>
                     <div>
                         <x-input-label for="deskripsi" value="Deskripsi" />
                         <textarea x-model="deskripsi" id="deskripsi"
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200"
+                            x-bind:class="errors.deskripsi ? '!border-red-500' : ''"
                             rows="3"></textarea>
+                        <x-field-error name="deskripsi" />
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <x-input-label for="tanggal" value="Tanggal" />
-                            <x-text-input type="date" x-model="tanggal" id="tanggal" class="w-full" />
+                            <x-text-input type="date" x-model="tanggal" id="tanggal" class="w-full" x-bind:class="errors.tanggal ? '!border-red-500' : ''" />
+                            <x-field-error name="tanggal" />
                         </div>
                         <div>
                             <x-input-label for="status" value="Status" />
                             <select x-model="status" id="status"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200"
+                                x-bind:class="errors.status ? '!border-red-500' : ''">
                                 <option value="aktif">Aktif</option>
                                 <option value="selesai">Selesai</option>
                                 <option value="batal">Batal</option>
                                 <option value="pending">Pending</option>
                             </select>
+                            <x-field-error name="status" />
                         </div>
                     </div>
                 </div>
@@ -100,6 +111,7 @@
     <script>
         function onUpdate(e) {
             e.preventDefault()
+            this.errors = {};
             const metaTag = document.head.querySelector('meta[name="csrf-token"]');
             const postData = {
                 nama: this.nama,
@@ -114,6 +126,8 @@
             }).then(function(response) {
                 Swal.fire({ title: "Berhasil !", icon: "success", timer: 1500 });
                 setTimeout(() => window.location.href = "/pekerjaan", 1000);
+            }).catch((error) => {
+                applyFormErrors(this, error);
             });
         }
     </script>

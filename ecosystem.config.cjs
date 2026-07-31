@@ -55,6 +55,8 @@ module.exports = {
         STREAM_COOLDOWN_MS: pick("STREAM_COOLDOWN_MS", ""),
         RESYNC_INTERVAL_MS: pick("RESYNC_INTERVAL_MS", ""),
         LOG_LEVEL: pick("LOG_LEVEL", "info"),
+        STREAM_CONTROL_PORT: pick("STREAM_CONTROL_PORT", ""),
+        STREAM_CONTROL_TOKEN: pick("STREAM_CONTROL_TOKEN", ""),
       },
     },
   ],

@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string("kode_pos")->nullable();
             $table->string("email_perusahaan")->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

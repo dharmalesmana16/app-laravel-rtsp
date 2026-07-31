@@ -17,7 +17,6 @@ return new class extends Migration
             $table->date("tanggal")->nullable();
             $table->string("status", 20)->default("aktif");
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

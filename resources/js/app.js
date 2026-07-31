@@ -2,6 +2,7 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import $ from 'jquery';
 import Swal from 'sweetalert2';
+import './matrix';
 
 window.$ = $;
 window.Swal = Swal;

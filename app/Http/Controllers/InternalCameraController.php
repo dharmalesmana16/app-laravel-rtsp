@@ -25,6 +25,14 @@ class InternalCameraController extends Controller
         return response()->json(['data' => $cameras]);
     }
 
+    public function show(DataCamera $camera): JsonResponse
+    {
+        return response()->json([
+            'id' => $camera->id,
+            'http_port' => $camera->http_port,
+        ]);
+    }
+
     public function rtspUrl(DataCamera $camera): JsonResponse
     {
         $url = $this->factory->for($camera)->build($camera);

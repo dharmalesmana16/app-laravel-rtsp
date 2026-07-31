@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('service.token')->prefix('internal')->group(function () {
     Route::get('/cameras', [InternalCameraController::class, 'index']);
+    Route::get('/camera/{camera}', [InternalCameraController::class, 'show']);
     Route::get('/camera/{camera}/rtsp', [InternalCameraController::class, 'rtspUrl']);
     Route::post('/camera/{camera}/heartbeat', [InternalCameraController::class, 'heartbeat']);
 });

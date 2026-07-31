@@ -38,7 +38,6 @@ return new class extends Migration
             $table->string("resolusi", 50)->nullable();
             $table->dateTime("last_on")->nullable();
             $table->timestamps();
-            $table->softDeletes();
             $table->index("brand");
         });
     }

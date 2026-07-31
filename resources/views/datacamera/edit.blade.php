@@ -13,6 +13,7 @@
             <h2 class="text-xl font-bold text-gray-900 mb-6">Edit CCTV</h2>
             <form x-data="{
                 id: {{ request()->route('camera') }},
+                errors: {},
                 ip: '',
                 mac: '',
                 resolusi: '',
@@ -56,63 +57,77 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <x-input-label for="ip" value="IP Camera" />
-                        <x-text-input id="ip" class="w-full" x-model="ip" />
+                        <x-text-input id="ip" class="w-full" x-model="ip" x-bind:class="errors.ip ? '!border-red-500' : ''" />
+                        <x-field-error name="ip" />
                     </div>
                     <div>
                         <x-input-label for="mac" value="Alamat MAC" />
-                        <x-text-input x-model="mac" id="mac" class="w-full" />
+                        <x-text-input x-model="mac" id="mac" class="w-full" x-bind:class="errors.mac ? '!border-red-500' : ''" />
+                        <x-field-error name="mac" />
                     </div>
                     <div>
                         <x-input-label for="channel" value="Channel" />
-                        <x-text-input x-model="channel" id="channel" class="w-full" />
+                        <x-text-input x-model="channel" id="channel" class="w-full" x-bind:class="errors.channel ? '!border-red-500' : ''" />
+                        <x-field-error name="channel" />
                     </div>
                     <div>
                         <x-input-label for="brand" value="Brand" />
-                        <x-text-input x-model="brand" id="brand" class="w-full" />
+                        <x-text-input x-model="brand" id="brand" class="w-full" x-bind:class="errors.brand ? '!border-red-500' : ''" />
+                        <x-field-error name="brand" />
                     </div>
                     <div>
                         <x-input-label for="tipe" value="Tipe CCTV" />
-                        <x-text-input x-model="tipe" id="tipe" class="w-full" />
+                        <x-text-input x-model="tipe" id="tipe" class="w-full" x-bind:class="errors.tipe ? '!border-red-500' : ''" />
+                        <x-field-error name="tipe" />
                     </div>
                     <div>
                         <x-input-label for="resolusi" value="Resolusi" />
-                        <x-text-input x-model="resolusi" id="resolusi" class="w-full" />
+                        <x-text-input x-model="resolusi" id="resolusi" class="w-full" x-bind:class="errors.resolusi ? '!border-red-500' : ''" />
+                        <x-field-error name="resolusi" />
                     </div>
                     <div>
                         <x-input-label for="vendor_id" value="Vendor" />
                         <select x-model="vendor_id" id="vendor_id"
-                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200"
+                            x-bind:class="errors.vendor_id ? '!border-red-500' : ''">
                             <option value="">Pilih Vendor</option>
                             <template x-for="v in allVendors" :key="v.id">
                                 <option :value="v.id" x-text="v.nama_perusahaan"></option>
                             </template>
                         </select>
+                        <x-field-error name="vendor_id" />
                     </div>
                     <div>
                         <x-input-label for="kartu_id" value="SIM Card" />
                         <select x-model="kartu_id" id="kartu_id"
-                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200">
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-main focus:border-main block w-full p-2.5 transition-all duration-200"
+                            x-bind:class="errors.kartu_id ? '!border-red-500' : ''">
                             <option value="">Pilih SIM Card</option>
                             <template x-for="k in allKartu" :key="k.id">
                                 <option :value="k.id" x-text="k.nomor"></option>
                             </template>
                         </select>
+                        <x-field-error name="kartu_id" />
                     </div>
                     <div>
                         <x-input-label for="latitude" value="Latitude" />
-                        <x-text-input x-model="latitude" id="latitude" class="w-full" />
+                        <x-text-input x-model="latitude" id="latitude" class="w-full" x-bind:class="errors.latitude ? '!border-red-500' : ''" />
+                        <x-field-error name="latitude" />
                     </div>
                     <div>
                         <x-input-label for="longitude" value="Longitude" />
-                        <x-text-input x-model="longitude" id="longitude" class="w-full" />
+                        <x-text-input x-model="longitude" id="longitude" class="w-full" x-bind:class="errors.longitude ? '!border-red-500' : ''" />
+                        <x-field-error name="longitude" />
                     </div>
                     <div>
                         <x-input-label for="auth_user" value="Auth User CCTV" />
-                        <x-text-input x-model="auth_user" id="auth_user" class="w-full" />
+                        <x-text-input x-model="auth_user" id="auth_user" class="w-full" x-bind:class="errors.auth_user ? '!border-red-500' : ''" />
+                        <x-field-error name="auth_user" />
                     </div>
                     <div>
                         <x-input-label for="auth_password" value="Auth Password CCTV" />
-                        <x-text-input type="password" x-model="auth_password" id="auth_password" class="w-full" />
+                        <x-text-input type="password" x-model="auth_password" id="auth_password" class="w-full" x-bind:class="errors.auth_password ? '!border-red-500' : ''" />
+                        <x-field-error name="auth_password" />
                     </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
@@ -131,6 +146,7 @@
     <script>
         function onUpdate(e) {
             e.preventDefault()
+            this.errors = {};
             const metaTag = document.head.querySelector('meta[name="csrf-token"]');
             const postData = {
                 ip: this.ip,
@@ -151,6 +167,8 @@
             }).then(function(response) {
                 Swal.fire({ title: "Berhasil !", icon: "success", timer: 1500 });
                 setTimeout(() => window.location.href = "/camera", 1000);
+            }).catch((error) => {
+                applyFormErrors(this, error);
             });
         }
     </script>

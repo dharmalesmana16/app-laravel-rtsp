@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/user/{user}/edit', fn () => view('user.edit'));
     });
 
+    Route::get('/matrix/items', [MatrixController::class, 'items']);
     Route::get('/matrix', [MatrixController::class, 'index']);
 
     Route::get('/tiles/{z}/{x}/{y}', [MapTileController::class, 'proxy'])

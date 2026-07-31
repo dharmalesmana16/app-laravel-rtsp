@@ -12,6 +12,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Tambah Kartu SIM Baru</h2>
             <form x-data="{
+                errors: {},
                 nomor: '',
                 ip: '',
                 subnet: '',
@@ -23,31 +24,38 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <x-input-label for="nomor" value="Nomor SIM Card" />
-                        <x-text-input id="nomor" class="w-full" x-model="nomor" placeholder="08xxxxxxxxxx" />
+                        <x-text-input id="nomor" class="w-full" x-model="nomor" placeholder="08xxxxxxxxxx" x-bind:class="errors.nomor ? '!border-red-500' : ''" />
+                        <x-field-error name="nomor" />
                     </div>
                     <div>
                         <x-input-label for="ip" value="IP Address" />
-                        <x-text-input x-model="ip" id="ip" class="w-full" placeholder="10.0.0.1" />
+                        <x-text-input x-model="ip" id="ip" class="w-full" placeholder="10.0.0.1" x-bind:class="errors.ip ? '!border-red-500' : ''" />
+                        <x-field-error name="ip" />
                     </div>
                     <div>
                         <x-input-label for="subnet" value="Subnet" />
-                        <x-text-input x-model="subnet" id="subnet" class="w-full" placeholder="255.255.255.0" />
+                        <x-text-input x-model="subnet" id="subnet" class="w-full" placeholder="255.255.255.0" x-bind:class="errors.subnet ? '!border-red-500' : ''" />
+                        <x-field-error name="subnet" />
                     </div>
                     <div>
                         <x-input-label for="gateway" value="Gateway" />
-                        <x-text-input x-model="gateway" id="gateway" class="w-full" placeholder="10.0.0.1" />
+                        <x-text-input x-model="gateway" id="gateway" class="w-full" placeholder="10.0.0.1" x-bind:class="errors.gateway ? '!border-red-500' : ''" />
+                        <x-field-error name="gateway" />
                     </div>
                     <div>
                         <x-input-label for="dns" value="DNS" />
-                        <x-text-input x-model="dns" id="dns" class="w-full" placeholder="8.8.8.8" />
+                        <x-text-input x-model="dns" id="dns" class="w-full" placeholder="8.8.8.8" x-bind:class="errors.dns ? '!border-red-500' : ''" />
+                        <x-field-error name="dns" />
                     </div>
                     <div>
                         <x-input-label for="kuota" value="Kuota (GB)" />
-                        <x-text-input type="number" step="0.1" min="0" x-model="kuota" id="kuota" class="w-full" placeholder="50" />
+                        <x-text-input type="number" step="0.1" min="0" x-model="kuota" id="kuota" class="w-full" placeholder="50" x-bind:class="errors.kuota ? '!border-red-500' : ''" />
+                        <x-field-error name="kuota" />
                     </div>
                     <div>
                         <x-input-label for="sisa_kuota" value="Sisa Kuota (GB)" />
-                        <x-text-input type="number" step="0.1" min="0" x-model="sisa_kuota" id="sisa_kuota" class="w-full" placeholder="30" />
+                        <x-text-input type="number" step="0.1" min="0" x-model="sisa_kuota" id="sisa_kuota" class="w-full" placeholder="30" x-bind:class="errors.sisa_kuota ? '!border-red-500' : ''" />
+                        <x-field-error name="sisa_kuota" />
                     </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
@@ -69,6 +77,7 @@
     <script>
         function onCreate(e) {
             e.preventDefault()
+            this.errors = {};
             const metaTag = document.head.querySelector('meta[name="csrf-token"]');
             const postData = {
                 nomor: this.nomor,
@@ -84,6 +93,8 @@
             }).then(function(response) {
                 Swal.fire({ title: "Berhasil !", icon: "success", timer: 1500 });
                 setTimeout(() => window.location.href = "/kartu", 1000);
+            }).catch((error) => {
+                applyFormErrors(this, error);
             });
         }
     </script>

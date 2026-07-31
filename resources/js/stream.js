@@ -1,5 +1,6 @@
 import { availableParallelism, cpus } from "node:os";
 import { spawn } from "node:child_process";
+import { createServer } from "node:http";
 import axios from "axios";
 import RtspStream from "node-rtsp-stream";
 import { createLogger } from "./lib/logger.js";
@@ -11,6 +12,9 @@ const RESYNC_INTERVAL_MS = Number(process.env.RESYNC_INTERVAL_MS || 60000);
 const BACKOFF_MAX_MS = 30000;
 const MAX_RECONNECT_ATTEMPTS = Number(process.env.MAX_RECONNECT_ATTEMPTS || 10);
 const COOLDOWN_MS = Number(process.env.STREAM_COOLDOWN_MS || 300000);
+
+const CONTROL_PORT = Number(process.env.STREAM_CONTROL_PORT || 8020);
+const CONTROL_TOKEN = process.env.STREAM_CONTROL_TOKEN || SERVICE_TOKEN;
 
 const cpuCount = (() => {
   try {
@@ -184,6 +188,103 @@ function scheduleReconnect(camId) {
   st.timer = setTimeout(() => respawn(camId), delay);
 }
 
+/**
+ * Resync satu kamera secara instan (dipicu sinyal CRUD dari Laravel).
+ * forceRestart=true -> matikan stream lama lalu minta ulang agar URL RTSP
+ * (yang di-fetch saat acquire) mengikuti data terbaru.
+ */
+async function refreshCamera(camId, { forceRestart = false } = {}) {
+  const log = logger.child({ cameraId: camId });
+  try {
+    const { data } = await http.get(`/api/internal/camera/${camId}`);
+    if (!data || !data.id) {
+      log.warn("kamera tidak ditemukan, slot dilepas");
+      cooldown.delete(camId);
+      pool.release(camId);
+      return;
+    }
+    cooldown.delete(camId);
+    if (forceRestart) pool.release(camId);
+    pool.request(data);
+    log.info("kamera di-resync", { forceRestart });
+  } catch (err) {
+    log.warn("refresh kamera gagal", { error: err.message });
+  }
+}
+
+function handleSignal(payload) {
+  if (!payload || payload.type !== "camera.changed") return;
+  const { id, action } = payload;
+  if (!Number.isInteger(id) || id <= 0) return;
+
+  logger.info("sinyal CRUD kamera diterima", { cameraId: id, action });
+
+  switch (action) {
+    case "updated":
+      refreshCamera(id, { forceRestart: true });
+      break;
+    case "deleted":
+      cooldown.delete(id);
+      pool.release(id);
+      break;
+    case "created":
+    default:
+      refreshCamera(id, { forceRestart: false });
+      break;
+  }
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+      if (body.length > 65536) {
+        reject(new Error("payload terlalu besar"));
+        req.destroy();
+      }
+    });
+    req.on("end", () => resolve(body));
+    req.on("error", reject);
+  });
+}
+
+function startControlServer() {
+  const server = createServer(async (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+
+    if (req.method !== "POST" || req.url !== "/sync") {
+      res.writeHead(404);
+      res.end(JSON.stringify({ ok: false, error: "not_found" }));
+      return;
+    }
+
+    if (req.headers.authorization !== `Bearer ${CONTROL_TOKEN}`) {
+      res.writeHead(401);
+      res.end(JSON.stringify({ ok: false, error: "unauthorized" }));
+      return;
+    }
+
+    try {
+      const payload = JSON.parse((await readBody(req)) || "{}");
+      handleSignal(payload);
+      res.writeHead(202);
+      res.end(JSON.stringify({ ok: true }));
+    } catch (err) {
+      res.writeHead(400);
+      res.end(JSON.stringify({ ok: false, error: err.message }));
+    }
+  });
+
+  server.on("error", (err) => {
+    logger.error("control server error", { error: err.message });
+  });
+
+  server.listen(CONTROL_PORT, () => {
+    logger.info("control server siap", { port: CONTROL_PORT });
+  });
+}
+
 async function sync() {
   try {
     const { data } = await http.get("/api/internal/cameras");
@@ -265,6 +366,7 @@ logger.info("service berjalan", {
 
 const SYNC_FAIL_MS = Number(process.env.SYNC_FAIL_MS || 10000);
 let syncTimer = null;
+let syncing = false;
 
 function scheduleSync(delay) {
   if (syncTimer) clearTimeout(syncTimer);
@@ -272,9 +374,16 @@ function scheduleSync(delay) {
 }
 
 async function runSync() {
-
-  const ok = await sync();
+  if (syncing) return;
+  syncing = true;
+  let ok = false;
+  try {
+    ok = await sync();
+  } finally {
+    syncing = false;
+  }
   scheduleSync(ok ? RESYNC_INTERVAL_MS : SYNC_FAIL_MS);
 }
 
+startControlServer();
 runSync();

@@ -26,6 +26,8 @@ services:
       CACHE_STORE: file
       QUEUE_CONNECTION: database
       STREAM_SERVICE_TOKEN: ${STREAM_SERVICE_TOKEN}
+      STREAM_CONTROL_URL: ${STREAM_CONTROL_URL:-http://stream:8020}
+      STREAM_CONTROL_TOKEN: ${STREAM_CONTROL_TOKEN}
     volumes:
       - storage:/var/www/html/storage
     depends_on:
@@ -48,6 +50,8 @@ services:
       STREAM_COOLDOWN_MS: ${STREAM_COOLDOWN_MS:-300000}
       RESYNC_INTERVAL_MS: ${RESYNC_INTERVAL_MS:-60000}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      STREAM_CONTROL_PORT: ${STREAM_CONTROL_PORT:-8020}
+      STREAM_CONTROL_TOKEN: ${STREAM_CONTROL_TOKEN}
     depends_on:
       - app
     networks:
